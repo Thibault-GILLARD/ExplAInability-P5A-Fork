@@ -2,7 +2,34 @@ from keras.layers import Layer
 import tensorflow as tf
 import numpy as np
 
+<<<<<<< HEAD
+class AttentionLayer(tf.keras.layers.Layer):
+    def __init__(self, attn_size=512):
+        super(AttentionLayer, self).__init__()
+        self.attn_size = attn_size
+
+    def build(self, input_shape):
+        d = input_shape[-1]
+
+        self.Wa = self.add_weight(name='Wa', shape=(d, self.attn_size),
+                                  initializer='random_normal', trainable=True)
+        self.ba = self.add_weight(name='ba', shape=(self.attn_size,),
+                                  initializer='random_normal', trainable=True)
+        self.ua = self.add_weight(name='ua', shape=(self.attn_size,),
+                                  initializer='random_normal', trainable=True)   
+
+    def call(self, inputs):
+        v = tf.tanh(tf.tensordot(inputs, self.Wa, axes=1) + self.ba)
+        vu = tf.tensordot(v, self.ua, axes=1)
+        alphas = tf.nn.softmax(vu)
+        output = tf.reduce_sum(inputs * tf.expand_dims(alphas, -1), axis=1)
+        return output, alphas 
+    
+
+class CustomAttentionLayer(tf.keras.layers.Layer):
+=======
 class CustomAttentionLayer(Layer):
+>>>>>>> Training
     """Custom Attention Layer.
 
     Args:
@@ -26,15 +53,30 @@ class CustomAttentionLayer(Layer):
                                  initializer='uniform', trainable=True)
         self.ba = self.add_weight(name='ba', shape=(self.units,),
                                  initializer='uniform', trainable=True)
+<<<<<<< HEAD
+        self.va = self.add_weight(name='va', shape=(1, self.units),
+                                 initializer='uniform', trainable=True)
+=======
+>>>>>>> Training
         super(CustomAttentionLayer, self).build(input_shape)
 
     def call(self, inputs):
         hl = inputs 
 
+<<<<<<< HEAD
+        matmul = tf.matmul(hl, tf.transpose(self.Wa))
+        e = tf.exp(tf.matmul(self.va, tf.transpose(tf.tanh(self.ba + matmul))))
+        #e = tf.exp(tf.reduce_sum(self.ba + tf.tanh(tf.matmul(hl, tf.transpose(self.Wa))), axis=-1, keepdims=True))
+
+        alpha = e / tf.reduce_sum(e, axis=0, keepdims=True)
+
+        alpha = tf.transpose(alpha)
+=======
         e = tf.exp(tf.reduce_sum(self.ba + tf.tanh(tf.matmul(hl, tf.transpose(self.Wa))), axis=-1, keepdims=True))
 
         alpha = e / tf.reduce_sum(e, axis=0, keepdims=True)
 
+>>>>>>> Training
         
         return alpha
 
@@ -45,3 +87,12 @@ class CustomAttentionLayer(Layer):
         # Calculate the weighted sum of input vectors based on attention scores
         weighted_sum = np.concatenate(inputs * alphas, axis=0)
         return weighted_sum
+<<<<<<< HEAD
+
+    def summary(self):
+        print("Custom Attention Layer with {} units".format(self.units))
+        #print("va shape:", self.va.shape)
+        print("Trainable weights:", self.trainable_weights)
+        print("Non-trainable weights:", self.non_trainable_weights)
+=======
+>>>>>>> Training
